@@ -3,10 +3,12 @@ import cv2
 import pandas as pd
 
 def TimeFunction(Executiontime):
-    time.sleep(Executiontime)
+    time.sleep(int(Executiontime))
 
-def DataLoad(str: input):
-    cv2.imread(input)
+def DataLoad(filename):
+    df = pd.read_csv(filename)
+    defects = len(df.index)
+    return {'DataTable' : df,'NoOfDefects': defects}
 
 def Binning():
     pass

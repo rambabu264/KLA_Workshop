@@ -5,7 +5,7 @@ from datetime import datetime
 from util import *
 
 #function to create a log line
-def log_line(str_template):
+def log_file(str_template):
     string = str(datetime.now()) + ';'
     for x in range(len(str_template)):
         string += str_template[x]
@@ -22,7 +22,7 @@ def act_on_activities(activity, str_template, txt_lines):
     for x in list_tasks:
         task = activity[x]
         str_template.append(x)
-        line = log_line(str_template) + " Entry\n"
+        line = log_file(str_template) + " Entry\n"
         txt_lines.append(line)
         task_attr = list(task.keys())
         # change to required conditional expression
@@ -32,7 +32,7 @@ def act_on_activities(activity, str_template, txt_lines):
             act_on_activities(sub_flow, str_template, txt_lines)
         else:
             if task['Function'] == 'TimeFunction' and condition:
-                op_str = log_line(str_template)
+                op_str = log_file(str_template)
                 task_input = task['Inputs']
                 exec_time = int(task_input['ExecutionTime'])
                 op_str += " Executing TimeFunction("
@@ -40,7 +40,7 @@ def act_on_activities(activity, str_template, txt_lines):
                 op_str += str(exec_time) + ")\n"
                 txt_lines.append(op_str)
                 TimeFunction(exec_time)
-        line = log_line(str_template) + " Exit\n"
+        line = log_file(str_template) + " Exit\n"
         txt_lines.append(line)
         str_template.pop(-1)
     
@@ -53,12 +53,12 @@ if __name__ == "__main__":
             for x in workflow_keys:
                 txt_lines = []
                 str_template = [x]
-                task_string = log_line(str_template) + " Entry\n"
+                task_string = log_file(str_template) + " Entry\n"
                 txt_lines.append(task_string)
                 workflow = ip_data['M1B_Workflow']
                 activity = workflow['Activities']
                 act_on_activities(activity, str_template, txt_lines)
-                task_string = log_line(str_template) + " Exit\n"
+                task_string = log_file(str_template) + " Exit\n"
                 txt_lines.append(task_string)
                 log_file.writelines(txt_lines)
                 print("Workflow {} has been logged".format(x))
