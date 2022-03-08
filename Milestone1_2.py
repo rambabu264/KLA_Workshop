@@ -79,7 +79,6 @@ class Workflow:
             self.threadLock.acquire()
             print(str(datetime.now())+';'+self.current+'.'+name+' Executing '+func+' ('+str(f_input)+' , '+inputs['ExecutionTime']+')' )
             self.threadLock.release()
-
             util.TimeFunction(inputs['ExecutionTime'])
 
         if func == "DataLoad":
@@ -89,7 +88,16 @@ class Workflow:
             
             temp = util.DataLoad(path+'/'+inputs['Filename'])
             ops[self.current+'.'+name+'.NoOfDefects'] = temp['NoOfDefects']
-            
+        
+        if func == "Binning":
+            file = pd.read_csv(path+'/'+inputs['Filename']['RuleFilename'])
+            d = util.DataLoad(path+'/'+inputs['Filename']['DataSet'])
+            temp = util.Binning(file,d)
+        
+        if func == 'MergeResults':
+            f = 
+
+
         self.threadLock.acquire()
         print(str(datetime.now())+';'+self.current+'.'+name+' Exit')
         self.threadLock.release()
@@ -123,14 +131,13 @@ class Workflow:
 
         return False
 
-                
     def Finish(self):
         self.threadLock.acquire()
         print(str(datetime.now())+';'+self.current+' Exit')
         self.threadLock.release()
 
 
-dts = {}
+
 ops = {}
 path = "Milestone2"
 
