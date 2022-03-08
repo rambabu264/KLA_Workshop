@@ -1,5 +1,4 @@
 import time
-import cv2
 import pandas as pd
 
 def TimeFunction(Executiontime):
@@ -19,7 +18,3 @@ def MergeResults():
 def ExportResults():
     pass
 
-def create_csv(name,l):
-    l = list(l)
-    df = pd.DataFrame.from_records(l)
-    df.to_csv((name+'.csv'), header=False, index=False)

@@ -1,9 +1,9 @@
 import threading
 import pandas as pd
-from datetime import datetime
+import datetime
 import yaml
+import time as t
 import sys
-import util
 
 class Logger:
     
@@ -18,7 +18,7 @@ class Logger:
         self.concur = concurrent
         threads = []
         self.threadLock.acquire()
-        print(str(datetime.now())+';'+self.cur+' Entry')
+        print(str(datetime.datetime.now())+';'+self.cur+' Entry')
         self.threadLock.release()
         k = data['Activities']
         
@@ -45,9 +45,16 @@ class Logger:
 
     def __del__(self):
         self.threadLock.acquire()
-        print(str(datetime.now())+';'+self.cur+' Exit')
+        print(str(datetime.datetime.now())+';'+self.cur+' Exit')
         self.threadLock.release()
 
+    def TimeFunction(self,i):
+        t.sleep(int(i))
+    
+    def DataLoad(self,filename):
+        df = pd.read_csv(filename)
+        defects = len(df.index)
+        return {'DataTable' : df,'NoOfDefects': defects}
 
     def conditions(self,con):
         global ops
@@ -84,17 +91,17 @@ class Logger:
         func = k[name]['Function']
         inputs = k[name]['Inputs']
         self.threadLock.acquire()
-        print(str(datetime.now())+';'+self.cur+'.'+name+' Entry')
+        print(str(datetime.datetime.now())+';'+self.cur+'.'+name+' Entry')
         self.threadLock.release()
 
         if 'Condition' in k[name]:
             if not self.conditions(k[name]['Condition']):
                 self.threadLock.acquire()
-                print(str(datetime.now())+';'+self.cur+'.'+name+' Skipped' )
+                print(str(datetime.datetime.now())+';'+self.cur+'.'+name+' Skipped' )
                 self.threadLock.release()
 
                 self.threadLock.acquire()
-                print(str(datetime.now())+';'+self.cur+'.'+name+' Exit')
+                print(str(datetime.datetime.now())+';'+self.cur+'.'+name+' Exit')
                 self.threadLock.release()
 
                 return
@@ -111,36 +118,36 @@ class Logger:
                         ed = i
                 f_input = ops[f_input[st+1:ed]]
             self.threadLock.acquire()
-            print(str(datetime.now())+';'+self.cur+'.'+name+' Executing '+func+' ('+str(f_input)+' , '+inputs['ExecutionTime']+')' )
+            print(str(datetime.datetime.now())+';'+self.cur+'.'+name+' Executing '+func+' ('+str(f_input)+' , '+inputs['ExecutionTime']+')' )
             self.threadLock.release()
 
-            util.TimeFunction(inputs['ExecutionTime'])
+            self.TimeFunction(inputs['ExecutionTime'])
 
         if func == "DataLoad":
             self.threadLock.acquire()
-            print(str(datetime.now())+';'+self.cur+'.'+name+' Executing '+func+' ('+inputs['Filename']+')' )
+            print(str(datetime.datetime.now())+';'+self.cur+'.'+name+' Executing '+func+' ('+inputs['Filename']+')' )
             self.threadLock.release()
             
-            temp = util.DataLoad(path+'/'+inputs['Filename'])
+            temp = self.DataLoad(path+'/'+inputs['Filename'])
             ops[self.cur+'.'+name+'.NoOfDefects'] = temp['NoOfDefects']
             
         self.threadLock.acquire()
-        print(str(datetime.now())+';'+self.cur+'.'+name+' Exit')
+        print(str(datetime.datetime.now())+';'+self.cur+'.'+name+' Exit')
         self.threadLock.release()
-
 
 dts = {}
 ops = {}
-path = "Milestone1"
+path = "Milestone2"
 
-with open('Milestone1\Milestone1A.yaml','r') as f:
+with open('Milestone2\Milestone2A.yaml','r') as f:
     data = yaml.load(f, Loader=yaml.SafeLoader)
 
 orig_stdout = sys.stdout
-f = open('M1A_output.txt', 'w')
+f = open('M2A_output.txt', 'w')
 sys.stdout = f
 
 for i in data:
+    #print(i)
     if data[i]['Execution'] =='Sequential':
         p1 = Logger(data[i],i)
         del p1
