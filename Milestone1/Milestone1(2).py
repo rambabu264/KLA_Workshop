@@ -37,7 +37,7 @@ def rec(dict_data):
             with concurrent.futures.ProcessPoolExecutor as p:
                 p.map(rec,p['Activities'][tasks])
     else:
-                
+        
 
 '''
 def iter_dict(dict_obj):
