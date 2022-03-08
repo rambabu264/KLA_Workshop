@@ -9,8 +9,21 @@ def DataLoad(filename):
     defects = len(df.index)
     return {'DataTable' : df,'NoOfDefects': defects}
 
-def Binning():
-    pass
+
+
+def Binning(file, d):
+    val = file['BIN_ID']
+    con = file['RULE']
+
+    d["Bincode"] = ""
+    con = str(con)
+
+    for r in d['Signal']:
+        l = l+con.replace('Signal',str(r))+')'
+        if exec(l):
+            d['Bincode'] =   val
+
+    return d
 
 def MergeResults():
     pass
