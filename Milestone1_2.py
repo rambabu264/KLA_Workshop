@@ -31,7 +31,6 @@ class Workflow:
                 else:
                     self.exec_func(j,act)
             else:
-                #print(k[j])
                 l = act[j]['Execution'] == 'Concurrent'
                 if self.concur:
                     t_temp = threading.Thread(target=Workflow, args = (act[j],self.current+'.'+j,l))
@@ -40,8 +39,8 @@ class Workflow:
                 else:
                     Workflow(data = act[j],cur = self.current+'.'+j,concurrent = l)
                     #del next
-        for x in threads:
-            x.join()
+        for thread_ in threads:
+            thread_.join()
 
 
     def exec_func(self,name,act):
@@ -95,7 +94,7 @@ class Workflow:
             temp = util.Binning(file,d)
         
         if func == 'MergeResults':
-            f = 
+            pass
 
 
         self.threadLock.acquire()
