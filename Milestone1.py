@@ -1,64 +1,66 @@
-from importlib.abc import Loader
-from util import *
-import cv2
 import yaml
-from datetime import datetime
-import concurrent.futures
-import multiprocessing
+import pandas as pd
+import threading as td
+from datetime import datetime 
+from util import *
+
+#function to create a log line
+def log_line(str_template):
+    string = str(datetime.now()) + ';'
+    for x in range(len(str_template)):
+        string += str_template[x]
+        if x < (len(str_template) - 1):
+            string += '.'
+    return string
 
 
-
-path="Milestone1\Milestone1A.yaml"
-with open(path) as f:
-    data = yaml.load(f,Loader = yaml.SafeLoader)
-
-def func(dict_obj):
-    for key,value in dict_obj.items():
-        if isinstance(value,dict):
-            for pair in func(value) :
-                yield(key,*pair)
+#here the activities are parsed
+def act_on_activities(activity, str_template, txt_lines):
+    
+    #parsing the activities to execute them
+    list_tasks = list(activity.keys())
+    for x in list_tasks:
+        task = activity[x]
+        str_template.append(x)
+        line = log_line(str_template) + " Entry\n"
+        txt_lines.append(line)
+        task_attr = list(task.keys())
+        # change to required conditional expression
+        condition = 1
+        if "Execution" in task_attr:
+            sub_flow = task['Activities']
+            act_on_activities(sub_flow, str_template, txt_lines)
         else:
-            yield(key,value)
-
-log = set()
-st = ""
-
-def reading_file(pair,st):
-    st += str(datetime.now())+";"+str(pair[0])
-    if pair[1] == 'Type':
-        log.add(st+" Entry")
-        if pair[2] == 'Sequential':
-            pass
-        elif pair[2] == 'Concurrent':
-            with concurrent.futures.ProcessPoolExecutor as p:
-                f = p.submit()
-
-
-'''
-    st = 
-    solve(pair)
-
-    print(st)
-
-create_csv("log",log)
-'''
-x = func(data)
-p = x.__next__()
-print(p[0:1])
-'''
-flow = ""
-Execution = ""
-
-
-while p:
-    #reading_file(p)
-    if len(p) == 3:
-        st = str(datetime.now())+";"+str(p[0])
-        log.add(st)
-        if p[2] == 'Flow':
-        flow = "Flow"
-    else:
-        
-    p = x.__next__()
-
-'''
+            if task['Function'] == 'TimeFunction' and condition:
+                op_str = log_line(str_template)
+                task_input = task['Inputs']
+                exec_time = int(task_input['ExecutionTime'])
+                op_str += " Executing TimeFunction("
+                op_str += task_input['FunctionInput'] + ","
+                op_str += str(exec_time) + ")\n"
+                txt_lines.append(op_str)
+                TimeFunction(exec_time)
+        line = log_line(str_template) + " Exit\n"
+        txt_lines.append(line)
+        str_template.pop(-1)
+    
+if __name__ == "__main__":
+    path="Milestone1\Milestone1B.yaml"
+    with open(path) as ip_file:
+            ip_data = yaml.load(ip_file, Loader=yaml.FullLoader)
+            log_file = open("Output\Milestone1B.txt", "a+")
+            workflow_keys = list(ip_data.keys())
+            for x in workflow_keys:
+                txt_lines = []
+                str_template = [x]
+                task_string = log_line(str_template) + " Entry\n"
+                txt_lines.append(task_string)
+                workflow = ip_data['M1B_Workflow']
+                activity = workflow['Activities']
+                act_on_activities(activity, str_template, txt_lines)
+                task_string = log_line(str_template) + " Exit\n"
+                txt_lines.append(task_string)
+                log_file.writelines(txt_lines)
+                print("Workflow {} has been logged".format(x))
+            print("File Created!")
+            log_file.close()
